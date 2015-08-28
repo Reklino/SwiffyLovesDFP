@@ -8,3 +8,4 @@ node_modules/gulp-sass
 node_modules/gulp-svgstore
 node_modules/gulp-uglify
 node_modules/material-design-icons
+node_modules/.bin
