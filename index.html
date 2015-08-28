@@ -6,70 +6,168 @@
 
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.min.css">
 	<link rel="stylesheet" href="node_modules/highlight.js/styles/monokai_sublime.css">
-	<link href='https://fonts.googleapis.com/css?family=Source+Code+Pro:400,700' rel='stylesheet' type='text/css'>
+	<link href='https://fonts.googleapis.com/css?family=Source+Code+Pro:400,700|Open+Sans:400,700' rel='stylesheet' type='text/css'>
+	<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/material-design-iconic-font/2.1.2/css/material-design-iconic-font.min.css">
 
 	<style>
 	* { box-sizing: border-box; }
 	html, body { height: 100%; }
 	body {
-		font-family: 'Source Code Pro', sans-serif;
-		background: #efefef;
+		font-family: 'Open Sans', sans-serif;
+		background: #f8f8f8;
+	}
+	a {
+		text-decoration: none;
+		color: gold;
+	}
+	.btn {
+		display: none;
+		width: 220px;
+		padding: 0 2em;
+		height: 3em;
+		line-height: 3em;
+		background: steelblue;
+		text-decoration: none;
+		color: white;
+		cursor: pointer;
+	}
+	.btn.zeroclipboard-is-hover { background: black; }
+	.coded .btn { display: inline-block; }
+	#success {
+		display: inline-block;
+		margin-left: 1.5em;
+		opacity: 0;
+		color: steelblue;
+		font-weight: 700;
+		transition: all 0.3s ease-in-out;
+		transition-delay: 1s;
+	}
+	#success.show {
+		transition: none;
+		opacity: 1;
+	}
+	.button--upload {
+		position: relative;
+		display: inline-block;
+	}
+
+	.button--upload__label {
+	  display: block;
+	  cursor: pointer;
+	  padding: 0.75em 2em;
+	  color: #fff;
+	  background: steelblue;
+	}
+	.button--upload__label:hover { background: black; }
+	    
+	.button--upload__file {
+	    position: absolute;
+	    left: 0;
+	    top: 0;
+	    right: 0;
+	    bottom: 0;
+	    font-size: 1;
+	    width: 0%;
+	    height: 100%;
+	    visibility: hidden;
 	}
 	header {
-		display: flex;
-		justify-content: space-between;
-		padding: 0 1em;
-		height: 70px;
-		background: #333;
-		color: white;
+		height: 1em;
+		line-height: 1em;
+		margin-bottom: 3em;
+		font-size: 1.5em;
 	}
-	header h1 {
-		font-weight: 400;
-		line-height: 70px;
-		font-size: 24px;
-		margin: 0;
-	}
-	header a {
-		color: white;
-		line-height: 70px;
+	header .zmdi {
+		margin-left: 0.5em;
 	}
 	main {
 		height: 100%;
-		padding-top: 70px;
-		margin-top: -70px;
 		display: flex;
 		justify-content: center;
 		align-items: stretch;
 		align-content: stretch;
 	}
+	footer {
+		position: fixed;
+		width: 100%;
+		padding: 1em 2em;
+		bottom: 0;
+		z-index: 1;
+		background: black;
+		color: white;
+	}
 	section {
 		display: flex;
 		flex-direction: column;
-		justify-content: center;
-		align-items: center;
+		justify-content: flex-start;
 		width: 50%;
+		height: 100%;
 		padding: 2em;
 	}
-
+	.input-container {
+		align-content: stretch;
+	}
 	#drop-zone {
+		position: relative;
+		display: flex;
+		align-content: stretch;
+		align-items: stretch;
 		width: 100%;
-		background: #E7E7E7;
-		border: 3px dashed #cdcdcd;
-		margin: 2em 0;
-		padding: 4em 1em;
+		height: 65vh;
+		background: #fafcfb;
+		box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.15), 1px 1px 4px 0 rgba(0, 0, 0, 0.05);
+		border-radius: 3px;
+		margin: 0 0;
+		padding: 2em 2em;
 		text-align: center;
+		color: black;
+		transition: all 0.3s ease-in-out;
+	}
+	#drop-zone .border {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		width: 100%;
+		border: 3px dashed #cdcdcd;
+		transition: all 0.3s ease-in-out;
 	}
 	#drop-zone.dragover {
-		border-color: steelblue;
-		background: #efefef;
+		background: white;
+		box-shadow: 0 0 15px 0 rgba(0, 0, 0, 0.15), 1px 1px 10px 0 rgba(0, 0, 0, 0.05);
+	}
+	#drop-zone.dragover .border { border-color: steelblue; }
+	#drop-mask {
+		position: absolute;
+		width: 100%; height: 100%;
+		margin: -2em 0 0 -2em;
+		z-index: 99;
+		display: none;
 	}
 
 	.output-container {
-		padding: 1em;
 		border-left: 1px solid #ddd;
 	}
+	#placeholder {
+		display: flex;
+		justify-content: center;
+		align-content: stretch;
+		align-items: center;
+		width: 100%;
+		height: 65vh;
+		text-align: center;
+	}
+	.coded #placeholder { display: none; }
+	pre {
+		display: none;
+		color: white;
+		padding: 1em;
+		background: #23241f;
+		box-shadow: 1px 1px 4px 0 rgba(0, 0, 0, 0.25);
+	}
+	.coded pre { display: block; }
 	#output {
 		width: 45vw !important;
+		font-family: 'Source Code Pro', monospace;
 	}
 	
 	</style>
@@ -77,45 +175,79 @@
 </head>
 <body>
 
-	<header>
-		<h1>Swiffy Loves DFP</h1>
-		<a href="#">Source</a>
-	</header>
-
 	<main>
 
 		<section class="input-container">
-			<div id="drop-zone">Drag and drop your swiffy file here.</div>
+			<header>Input <i class="zmdi zmdi-upload"></i></header>
+			<div id="drop-zone">
+				<div id="drop-mask"></div>
+				<div class="border" id="border">
+					<div>
+						<i class="zmdi zmdi-wallpaper zmdi-hc-5x"></i>
+						<p>Drag and drop your swiffy file here.</p>
+						<div class="button--upload">
+						    <label for="upload-file" class="button--upload__label">or Click Here to Upload <i class="zmdi zmdi-upload"></i></label>
+						    <input type="file" multiple id="upload-file" name="upload-file" class="button--upload__file">
+						</div>
+					</div>
+				</div>
+			</div>
 		</section>
 
-		<section class="output-container">
+		<section class="output-container" id="output-container">
+			<header>Output <i class="zmdi zmdi-download"></i></header>
+			<div id="placeholder">
+				<div>
+					<i class="zmdi zmdi-code-setting zmdi-hc-5x"></i>
+					<p>Your code will appear here once you upload your file.</p>
+				</div>
+			</div>
 			<output id="list"></output>
 			<pre><code class="html" id="output">Your converted swiffy code will appear here.</code></pre>
+			<div>
+				<a href="#" id="copy-code" class="btn"><i class="zmdi zmdi-copy"></i>&nbsp; Copy to Clipboard</a>
+				<span id="success"><i class="zmdi zmdi-check"></i>&nbsp; Copied!</span>
+			</div>
 		</section>
 
 	</main>
+
+	<footer><i class="zmdi zmdi-email-open"></i>&nbsp; <a href="mailto:jdavidson@gatehousemediagroup.com">Contact Jacob</a> if you have any issues.</footer>
 	
 	<script src="highlight.pack.js"></script>
 	<script src="node_modules/zeroclipboard/dist/ZeroClipboard.js"></script>
 	<script>
 		if (window.File && window.FileReader && window.FileList && window.Blob) {
 
-			ZeroClipboard.config( { swfPath: "ZeroClipboard.swf" } );
+			ZeroClipboard.config( { swfPath: "node_modules/zeroclipboard/dist/ZeroClipboard.swf" } );
 
-			var codeBlock = document.getElementById('output');
+			var codeBlock = document.getElementById('output'),
+				outputContainer = document.getElementById('output-container'),
+				copyCode = document.getElementById('copy-code'),
+				success = document.getElementById('success');
+
+			var client = new ZeroClipboard(copyCode);
+
+			function successMessage() {
+				console.log('copied');
+				success.classList.add('show');
+				setTimeout(function() { success.classList.remove('show'); }, 10);
+			}
 			
 			function handleFileSelect(e) {
 
-				handleDragLeave();
+				handleDragLeave(e);
 				e.stopPropagation();
 				e.preventDefault();
 
-				var files = e.dataTransfer.files;
+				var files = e.dataTransfer !== undefined ? e.dataTransfer.files : e.target.files;
 				var output = [];
 
 				for (var i=0, f; f = files[i]; i++) {
 
 					if(f.type === 'text/html') {
+
+						outputContainer.classList.add('coded');
 
 						output.push('<li><strong>', f.name, '</strong> (', f.type || 'n/a', ') - ',
 	                  f.size, ' bytes, last modified: ',
@@ -127,12 +259,20 @@
 
 							return function(e) {
 
-								var theCode = swiffyQuickerFixerUpper(e.target.result);
+								var theCode = swiffyQuickerFixerUpper(e.target.result),
+									oldCode = theCode;
 								theCode = theCode.replace(/</g, '&lt;');
 								theCode = theCode.replace(/>/g, '&gt;');
 								theCode = theCode.replace(/"/g, '&quot;');
 								codeBlock.innerHTML = theCode;
 								hljs.highlightBlock(codeBlock);
+
+								client.on( "copy", function (event) {
+								  var clipboard = event.clipboardData;
+								  clipboard.setData( "text/plain", oldCode );
+								  successMessage();
+								});
+
 							};
 
 						})(f);
@@ -151,26 +291,31 @@
 				e.stopPropagation();
 				e.preventDefault();
 				e.dataTransfer.dropEffect = 'copy';
-
-			}
-
-			function handleDragEnter() {
 				if(!dropZone.classList.contains('dragover')) {
 					dropZone.classList.add('dragover');
 				}
+				dropMask.style.display = 'block';
+
 			}
 
-			function handleDragLeave() {
+			function handleDragLeave(e) {
+				e.stopPropagation();
+				e.preventDefault();
 				if(dropZone.classList.contains('dragover')) {
 					dropZone.classList.remove('dragover');
 				}
+				dropMask.style.display = 'none';
 			}
 
-			var dropZone = document.getElementById('drop-zone');
+			var dropZone = document.getElementById('drop-zone'),
+				dropMask = document.getElementById('drop-mask');;
+
 			dropZone.addEventListener('dragover', handleDragOver, false);
-			dropZone.addEventListener('dragenter', handleDragEnter, false);
-			dropZone.addEventListener('dragleave', handleDragLeave, false);
-			dropZone.addEventListener('drop', handleFileSelect, false);
+			dropMask.addEventListener('dragleave', handleDragLeave, false);
+			dropMask.addEventListener('drop', handleFileSelect, false);
+
+			var fileInput = document.getElementById('upload-file');
+			fileInput.addEventListener('change', handleFileSelect, false);
 
 
 			/*----------  Swiffy fixer upper  ----------*/

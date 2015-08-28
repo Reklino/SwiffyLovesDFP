@@ -6,7 +6,8 @@ var uglify = require('gulp-uglify');
 var rename = require('gulp-rename');
 var browserSync = require('browser-sync').create();
 var reload      = browserSync.reload;
-
+var svgstore	= require('gulp-svgstore');
+var inject 		= require('gulp-inject');
 
 gulp.task('watch', function() {
     browserSync.init({
