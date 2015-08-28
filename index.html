@@ -1,0 +1,204 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Swiffy Loves DFP</title>
+
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.min.css">
+	<link rel="stylesheet" href="node_modules/highlight.js/styles/monokai_sublime.css">
+	<link href='https://fonts.googleapis.com/css?family=Source+Code+Pro:400,700' rel='stylesheet' type='text/css'>
+
+	<style>
+	* { box-sizing: border-box; }
+	html, body { height: 100%; }
+	body {
+		font-family: 'Source Code Pro', sans-serif;
+		background: #efefef;
+	}
+	header {
+		display: flex;
+		justify-content: space-between;
+		padding: 0 1em;
+		height: 70px;
+		background: #333;
+		color: white;
+	}
+	header h1 {
+		font-weight: 400;
+		line-height: 70px;
+		font-size: 24px;
+		margin: 0;
+	}
+	header a {
+		color: white;
+		line-height: 70px;
+	}
+	main {
+		height: 100%;
+		padding-top: 70px;
+		margin-top: -70px;
+		display: flex;
+		justify-content: center;
+		align-items: stretch;
+		align-content: stretch;
+	}
+	section {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		width: 50%;
+		padding: 2em;
+	}
+
+	#drop-zone {
+		width: 100%;
+		background: #E7E7E7;
+		border: 3px dashed #cdcdcd;
+		margin: 2em 0;
+		padding: 4em 1em;
+		text-align: center;
+	}
+	#drop-zone.dragover {
+		border-color: steelblue;
+		background: #efefef;
+	}
+
+	.output-container {
+		padding: 1em;
+		border-left: 1px solid #ddd;
+	}
+	#output {
+		width: 45vw !important;
+	}
+	
+	</style>
+
+</head>
+<body>
+
+	<header>
+		<h1>Swiffy Loves DFP</h1>
+		<a href="#">Source</a>
+	</header>
+
+	<main>
+
+		<section class="input-container">
+			<div id="drop-zone">Drag and drop your swiffy file here.</div>
+		</section>
+
+		<section class="output-container">
+			<output id="list"></output>
+			<pre><code class="html" id="output">Your converted swiffy code will appear here.</code></pre>
+		</section>
+
+	</main>
+	
+	<script src="highlight.pack.js"></script>
+	<script src="node_modules/zeroclipboard/dist/ZeroClipboard.js"></script>
+	<script>
+		if (window.File && window.FileReader && window.FileList && window.Blob) {
+
+			ZeroClipboard.config( { swfPath: "ZeroClipboard.swf" } );
+
+			var codeBlock = document.getElementById('output');
+			
+			function handleFileSelect(e) {
+
+				handleDragLeave();
+				e.stopPropagation();
+				e.preventDefault();
+
+				var files = e.dataTransfer.files;
+				var output = [];
+
+				for (var i=0, f; f = files[i]; i++) {
+
+					if(f.type === 'text/html') {
+
+						output.push('<li><strong>', f.name, '</strong> (', f.type || 'n/a', ') - ',
+	                  f.size, ' bytes, last modified: ',
+	                  f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a',
+	                  '</li>');
+
+						var reader = new FileReader();
+						reader.onload = (function(theFile) {
+
+							return function(e) {
+
+								var theCode = swiffyQuickerFixerUpper(e.target.result);
+								theCode = theCode.replace(/</g, '&lt;');
+								theCode = theCode.replace(/>/g, '&gt;');
+								theCode = theCode.replace(/"/g, '&quot;');
+								codeBlock.innerHTML = theCode;
+								hljs.highlightBlock(codeBlock);
+							};
+
+						})(f);
+						reader.readAsText(f);
+
+					} else { alert('HTML files only please :)'); }
+
+				}
+
+				document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
+
+			}
+
+			function handleDragOver(e) {
+
+				e.stopPropagation();
+				e.preventDefault();
+				e.dataTransfer.dropEffect = 'copy';
+
+			}
+
+			function handleDragEnter() {
+				if(!dropZone.classList.contains('dragover')) {
+					dropZone.classList.add('dragover');
+				}
+			}
+
+			function handleDragLeave() {
+				if(dropZone.classList.contains('dragover')) {
+					dropZone.classList.remove('dragover');
+				}
+			}
+
+			var dropZone = document.getElementById('drop-zone');
+			dropZone.addEventListener('dragover', handleDragOver, false);
+			dropZone.addEventListener('dragenter', handleDragEnter, false);
+			dropZone.addEventListener('dragleave', handleDragLeave, false);
+			dropZone.addEventListener('drop', handleFileSelect, false);
+
+
+			/*----------  Swiffy fixer upper  ----------*/
+
+			var newBody = '\
+<body style="margin: 0; overflow: hidden">' + '\n' +
+'        <div id="swiffycontainer_%ecid!" style="width: %%WIDTH%%px; height: %%HEIGHT%%px"></div>' + '\n' +
+'    <script>' + '\n' +
+'      var stage = new swiffy.Stage(document.getElementById(\'swiffycontainer_%ecid!\'),' + '\n' +
+'          swiffyobject, {});' + '\n' +
+'      stage.setFlashVars("clickTAG=%%CLICK_URL_ESC%%%%DEST_URL%%");' + '\n' +
+'      stage.start();' + '\n' +
+'    <\/script>' + '\n' +
+'  <\/body>';
+
+			function swiffyQuickerFixerUpper(swiffy) { // bounty
+
+	            var start = swiffy.indexOf('<body');
+	            var end = swiffy.indexOf('body>') + 5;
+	            var old = swiffy.slice(start, end);
+	            return swiffy.replace(old, newBody);
+
+			}
+
+		} else {
+			alert('Your browser sucks too bad to use this tool. See compatability here: http://caniuse.com/#feat=fileapi');
+		}
+	</script>
+
+</body>
+</html>
